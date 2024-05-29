@@ -10,25 +10,21 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
 import androidx.appcompat.app.AlertDialog;
-
 
 import com.example.my_pet_shop.databinding.ActivityProfileBinding;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.example.my_pet_shop.FirebaseFactory;
 
 public class ProfileActivity extends DrawerBase {
 
     DatabaseReference databaseReference;
-    FirebaseDatabase rootnode,node;
-    DatabaseReference reference,userReference;
     private FirebaseAuth firebaseAuth;
     private FirebaseUser firebaseUser;
-    Button goHomeBtn, updateBtn,deleteBtn;
-
+    Button goHomeBtn, updateBtn, deleteBtn;
     TextView fullNameTextView, usernameTextView, emailTextView, phoneTextView, passwordTextView;
     String idPhone, email;
     ActivityProfileBinding activityProfileBinding;
@@ -38,10 +34,9 @@ public class ProfileActivity extends DrawerBase {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
 
-
-        firebaseAuth = FirebaseAuth.getInstance();
+        firebaseAuth = FirebaseFactory.getFirebaseAuth();
         firebaseUser = firebaseAuth.getCurrentUser();
-        databaseReference = FirebaseDatabase.getInstance().getReference().child("Petbuddy").child("users");
+        databaseReference = FirebaseFactory.getDatabaseReference("Petbuddy/users");
         goHomeBtn = findViewById(R.id.goHomeBtn);
         updateBtn = findViewById(R.id.update_btn);
         fullNameTextView = findViewById(R.id.fullnameEditText);
@@ -49,8 +44,7 @@ public class ProfileActivity extends DrawerBase {
         emailTextView = findViewById(R.id.emailEditText);
         phoneTextView = findViewById(R.id.phonenumEditText);
         passwordTextView = findViewById(R.id.passwordEditText);
-        deleteBtn=findViewById(R.id.deleteBtn);
-        idPhone = phoneTextView.getText().toString();
+        deleteBtn = findViewById(R.id.deleteBtn);
 
         showUserData();
 
@@ -72,11 +66,10 @@ public class ProfileActivity extends DrawerBase {
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String phoned=phoneTextView.getText().toString();
+                String phoned = phoneTextView.getText().toString();
                 deleteProfile(phoned);
             }
         });
-
     }
 
     private void showUpdateDialog() {
@@ -91,7 +84,6 @@ public class ProfileActivity extends DrawerBase {
         final EditText updatePhone = dialogView.findViewById(R.id.updatePhone);
         final EditText updatePassword = dialogView.findViewById(R.id.updatePassword);
 
-        // Set current values to the EditTexts
         updateName.setText(fullNameTextView.getText().toString());
         updateUsername.setText(usernameTextView.getText().toString());
         updateEmail.setText(emailTextView.getText().toString());
@@ -100,21 +92,17 @@ public class ProfileActivity extends DrawerBase {
 
         dialogBuilder.setPositiveButton("Update", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
-                // Update the text views with the new values
                 fullNameTextView.setText(updateName.getText().toString());
                 usernameTextView.setText(updateUsername.getText().toString());
                 emailTextView.setText(updateEmail.getText().toString());
                 phoneTextView.setText(updatePhone.getText().toString());
                 passwordTextView.setText(updatePassword.getText().toString());
-                // You can update the Firebase database here if needed
 
                 updateUserData(updateName.getText().toString(),
                         updateUsername.getText().toString(),
                         updateEmail.getText().toString(),
                         updatePhone.getText().toString(),
                         updatePassword.getText().toString());
-
-
             }
         });
 
@@ -129,8 +117,6 @@ public class ProfileActivity extends DrawerBase {
     }
 
     public void showUserData() {
-        // Existing code to show user data in TextViews
-
         Intent intent=getIntent();
 
         String nameUser= intent.getStringExtra("name");
@@ -146,43 +132,26 @@ public class ProfileActivity extends DrawerBase {
         emailTextView.setText(emailUser);
     }
 
-
     private void updateUserData(String name, String username, String email, String phone, String password) {
-        rootnode=FirebaseDatabase.getInstance();
-        reference= rootnode.getReference("Petbuddy/users");
+        DatabaseReference reference = FirebaseFactory.getDatabaseReference("Petbuddy/users");
 
         reference.child(phone).child("name").setValue(name);
         reference.child(phone).child("username").setValue(username);
         reference.child(phone).child("email").setValue(email);
-        //reference.child(phone).child("phone").setValue(phone);
         reference.child(phone).child("password").setValue(password);
     }
 
+    public void deleteProfile(String phoned) {
+        DatabaseReference userReference = FirebaseFactory.getDatabaseReference("Petbuddy/users").child(phoned);
 
-   public  void deleteProfile(String phoned){
-
-       node = FirebaseDatabase.getInstance();
-       userReference = node.getReference("Petbuddy/users").child(phoned);
-
-       // Remove the user data from the database
-       userReference.removeValue().addOnCompleteListener(task -> {
-           if (task.isSuccessful()) {
-               // Deletion successful
-               // You might want to navigate to another screen or perform other actions
-               // after the profile is deleted
-               Intent intent = new Intent(ProfileActivity.this, Login.class);
-               startActivity(intent);
-               finish(); // Close the current activity
-           } else {
-               // Handle the deletion failure
-               // You might want to show an error message or perform other actions
-               // to inform the user about the issue
-               Toast.makeText(ProfileActivity.this, "Failed to delete profile", Toast.LENGTH_SHORT).show();
-           }
-       });
-
-
-   }
-
-
+        userReference.removeValue().addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                Intent intent = new Intent(ProfileActivity.this, Login.class);
+                startActivity(intent);
+                finish();
+            } else {
+                Toast.makeText(ProfileActivity.this, "Failed to delete profile", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 }
