@@ -1,4 +1,4 @@
-# 🐾 PetShop Android App
+# 🐾 PetBuddy Android App
 
 Welcome to **PetShop**, your ultimate destination to find and adopt your favorite pets right from your mobile device! This Android application is designed to offer a smooth and user-friendly experience for pet lovers.  
 
