@@ -35,7 +35,7 @@ Welcome to **PetShop**, your ultimate destination to find and adopt your favorit
 - **Firebase Authentication**
 - **Firebase Realtime Database**
 - **Firebase Storage**
-- **bKash Payment Gateway API**
+- **Uddokkta Pay Payment Gateway API**
 
 ## 📸 Screenshots
 ![App Screenshot](assets/1.jpg)
